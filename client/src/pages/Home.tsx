@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Moon, Sun } from "lucide-react";
-import { useTheme } from "@/contexts/ThemeContext";
 
 interface Law {
   id: number;
@@ -120,9 +119,22 @@ const storeSubcategories = [
 ];
 
 export default function Home() {
-  const { theme, toggleTheme, switchable } = useTheme();
+  const [isDarkMode, setIsDarkMode] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("city");
+
+  // حفظ تفضيل الوضع في localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("vibesrp-dark-mode");
+    if (saved !== null) {
+      setIsDarkMode(JSON.parse(saved));
+    }
+  }, []);
+
+  // تحديث localStorage عند تغيير الوضع
+  useEffect(() => {
+    localStorage.setItem("vibesrp-dark-mode", JSON.stringify(isDarkMode));
+  }, [isDarkMode]);
 
   const filteredLaws = lawsData
     .find((cat) => cat.id === activeCategory)
@@ -142,134 +154,359 @@ export default function Home() {
       law.text.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+  // الألوان حسب الوضع
+  const colors = isDarkMode
+    ? {
+        bg: "#050308",
+        bgSecondary: "#1a0520",
+        bgTertiary: "#3d0a2a",
+        text: "#ffffff",
+        textSecondary: "#d4d4d4",
+        textMuted: "#999999",
+        border: "#3d0a2a",
+        accent: "#d4307a",
+        accentLight: "#f5a8d8",
+        button: "#1a93fe",
+        buttonHover: "#1487fa",
+      }
+    : {
+        bg: "#f8f0f5",
+        bgSecondary: "#fce4ec",
+        bgTertiary: "#f3e5f5",
+        text: "#5a3a5a",
+        textSecondary: "#7a5a7a",
+        textMuted: "#b0909b",
+        border: "#e8c5d8",
+        accent: "#d4307a",
+        accentLight: "#f5a8d8",
+        button: "#d4307a",
+        buttonHover: "#c71f6e",
+      };
+
   return (
-    <div className="min-h-screen bg-[#050308] overflow-x-hidden">
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: colors.bg,
+        color: colors.text,
+        transition: "all 0.3s ease",
+      }}
+    >
       {/* Background with overlay */}
-      <div
-        className="fixed inset-0 -z-10"
-        style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=1200&h=400&fit=crop')",
-          backgroundSize: "cover",
-          backgroundPosition: "center center",
-          opacity: 0.3,
-        }}
-      ></div>
+      {isDarkMode && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: -10,
+            backgroundImage:
+              "url('https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=1200&h=400&fit=crop')",
+            backgroundSize: "cover",
+            backgroundPosition: "center center",
+            opacity: 0.3,
+          }}
+        ></div>
+      )}
 
       {/* Header */}
-      <header className="relative z-40 border-b border-[#3d0a2a] bg-[#050308]/80 backdrop-blur">
-        <div className="container mx-auto px-4 py-6">
+      <header
+        style={{
+          position: "relative",
+          zIndex: 40,
+          borderBottom: `1px solid ${colors.border}`,
+          backgroundColor: isDarkMode ? `${colors.bg}cc` : `${colors.bg}cc`,
+          backdropFilter: "blur(10px)",
+        }}
+      >
+        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "1.5rem 1rem" }}>
           {/* Title Section */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex flex-col">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: "1.5rem",
+            }}
+          >
+            <div>
               <h1
-                className="text-4xl font-bold text-white"
-                style={{ textShadow: "rgba(0, 0, 0, 0.7) 0px 2px 15px" }}
+                style={{
+                  fontSize: "2.25rem",
+                  fontWeight: "bold",
+                  color: colors.text,
+                  textShadow: isDarkMode
+                    ? "rgba(0, 0, 0, 0.7) 0px 2px 15px"
+                    : "rgba(90, 58, 90, 0.2) 0px 2px 10px",
+                  margin: 0,
+                }}
               >
                 VibesRP
               </h1>
               <p
-                className="text-sm text-gray-400"
-                style={{ textShadow: "rgba(0, 0, 0, 0.5) 0px 1px 10px" }}
+                style={{
+                  fontSize: "0.875rem",
+                  color: colors.textMuted,
+                  textShadow: isDarkMode
+                    ? "rgba(0, 0, 0, 0.5) 0px 1px 10px"
+                    : "rgba(90, 58, 90, 0.1) 0px 1px 5px",
+                  margin: "0.25rem 0 0 0",
+                }}
               >
                 القوانين الرسمية
               </p>
             </div>
 
             {/* Status and Theme Toggle */}
-            <div className="flex items-center gap-4">
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
               <div
-                className="flex items-center gap-2 px-3 py-2 rounded-full"
-                style={{ boxShadow: "rgba(34, 197, 94, 0.4) 0px 0px 10px" }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  padding: "0.5rem 0.75rem",
+                  borderRadius: "9999px",
+                  boxShadow: "rgba(34, 197, 94, 0.4) 0px 0px 10px",
+                }}
               >
-                <span className="w-2 h-2 rounded-full bg-[#25ba3b] animate-pulse"></span>
-                <span className="text-sm font-medium text-[#25ba3b]">
+                <span
+                  style={{
+                    width: "0.5rem",
+                    height: "0.5rem",
+                    borderRadius: "50%",
+                    backgroundColor: "#25ba3b",
+                    animation: "pulse 2s infinite",
+                  }}
+                ></span>
+                <span
+                  style={{
+                    fontSize: "0.875rem",
+                    fontWeight: "500",
+                    color: "#25ba3b",
+                  }}
+                >
                   نشط الآن
                 </span>
               </div>
 
-              {switchable && (
-                <button
-                  onClick={toggleTheme}
-                  className="p-2 rounded-full border border-[#3d0a2a] hover:bg-[#3d0a2a] transition-colors"
-                  title={theme === "light" ? "تبديل للوضع الداكن" : "تبديل للوضع الفاتح"}
-                >
-                  {theme === "light" ? (
-                    <Moon className="h-5 w-5 text-white" />
-                  ) : (
-                    <Sun className="h-5 w-5 text-white" />
-                  )}
-                </button>
-              )}
+              {/* Theme Toggle Button */}
+              <button
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                style={{
+                  padding: "0.5rem",
+                  borderRadius: "50%",
+                  border: `1px solid ${colors.border}`,
+                  backgroundColor: isDarkMode ? colors.bgTertiary : colors.bgTertiary,
+                  color: colors.text,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "all 0.3s ease",
+                  width: "40px",
+                  height: "40px",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = colors.accent;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = isDarkMode
+                    ? colors.bgTertiary
+                    : colors.bgTertiary;
+                }}
+                title={isDarkMode ? "تبديل للوضع الفاتح" : "تبديل للوضع الداكن"}
+              >
+                {isDarkMode ? (
+                  <Sun size={20} />
+                ) : (
+                  <Moon size={20} />
+                )}
+              </button>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-wrap gap-2 mb-6">
-            <button className="px-4 py-2 rounded-lg bg-[#1a93fe] text-white font-medium hover:bg-[#1487fa] transition-colors">
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1.5rem" }}>
+            <button
+              style={{
+                padding: "0.5rem 1rem",
+                borderRadius: "0.5rem",
+                backgroundColor: colors.button,
+                color: "white",
+                fontWeight: "500",
+                border: "none",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = colors.buttonHover;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = colors.button;
+              }}
+            >
               🎮 العب الآن
             </button>
-            <button className="px-4 py-2 rounded-lg border border-[#3d0a2a] text-gray-300 font-medium hover:bg-[#3d0a2a] transition-colors">
+            <button
+              style={{
+                padding: "0.5rem 1rem",
+                borderRadius: "0.5rem",
+                border: `1px solid ${colors.border}`,
+                backgroundColor: "transparent",
+                color: colors.textSecondary,
+                fontWeight: "500",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = colors.bgTertiary;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+              }}
+            >
               💬 الديسكورد
             </button>
           </div>
 
           {/* Search Bar */}
-          <Input
+          <input
             type="text"
             placeholder="ابحث عن قانون..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#1a0520] border-[#3d0a2a] text-white placeholder-gray-500"
+            style={{
+              width: "100%",
+              padding: "0.75rem 1rem",
+              borderRadius: "0.5rem",
+              backgroundColor: colors.bgSecondary,
+              border: `1px solid ${colors.border}`,
+              color: colors.text,
+              fontSize: "1rem",
+              boxSizing: "border-box",
+            }}
           />
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="relative z-20 container mx-auto px-4 py-8">
+      <main style={{ position: "relative", zIndex: 20, maxWidth: "1200px", margin: "0 auto", padding: "2rem 1rem" }}>
         {/* Category Buttons */}
-        <div className="flex flex-wrap gap-2 mb-8 justify-center md:justify-start">
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "0.5rem",
+            marginBottom: "2rem",
+            justifyContent: "center",
+          }}
+        >
           {lawsData.map((category) => (
             <button
               key={category.id}
               onClick={() => setActiveCategory(category.id)}
-              className={`px-4 py-2 rounded-lg border transition-all ${
-                activeCategory === category.id
-                  ? "bg-[#d4307a] border-[#d4307a] text-white"
-                  : "border-[#3d0a2a] text-gray-300 hover:bg-[#3d0a2a]"
-              }`}
+              style={{
+                padding: "0.5rem 1rem",
+                borderRadius: "0.5rem",
+                border: `1px solid ${colors.border}`,
+                backgroundColor:
+                  activeCategory === category.id ? colors.accent : "transparent",
+                color:
+                  activeCategory === category.id ? "white" : colors.textSecondary,
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                fontSize: "0.875rem",
+              }}
+              onMouseEnter={(e) => {
+                if (activeCategory !== category.id) {
+                  e.currentTarget.style.backgroundColor = colors.bgTertiary;
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeCategory !== category.id) {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                }
+              }}
             >
-              <span className="mr-2">{category.emoji}</span>
+              <span style={{ marginRight: "0.5rem" }}>{category.emoji}</span>
               {category.name}
             </button>
           ))}
         </div>
 
         {/* Laws Content */}
-        <div className="space-y-4">
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           {activeCategory === "store" ? (
             // Store Laws Subcategories
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+                  gap: "1rem",
+                }}
+              >
                 {storeSubcategories.map((subcategory) => (
                   <div
                     key={subcategory.id}
-                    className="p-4 rounded-lg border border-[#3d0a2a] bg-[#1a0520]/50 hover:bg-[#1a0520] transition-colors"
+                    style={{
+                      padding: "1rem",
+                      borderRadius: "0.5rem",
+                      border: `1px solid ${colors.border}`,
+                      backgroundColor: colors.bgSecondary,
+                      transition: "all 0.3s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
                   >
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-2xl">{subcategory.emoji}</span>
-                      <h3 className="font-bold text-white">{subcategory.name}</h3>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
+                      <span style={{ fontSize: "1.5rem" }}>{subcategory.emoji}</span>
+                      <h3 style={{ fontWeight: "bold", color: colors.text, margin: 0 }}>
+                        {subcategory.name}
+                      </h3>
                     </div>
-                    <div className="space-y-2">
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                       {subcategory.laws.map((law) => (
                         <div
                           key={law.id}
-                          className="flex gap-3 p-2 rounded bg-[#3d0a2a]/30 hover:bg-[#3d0a2a]/50 transition-colors"
+                          style={{
+                            display: "flex",
+                            gap: "0.75rem",
+                            padding: "0.5rem",
+                            borderRadius: "0.375rem",
+                            backgroundColor: colors.bgTertiary,
+                            transition: "all 0.3s ease",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = colors.accent;
+                            e.currentTarget.style.opacity = "0.8";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = colors.bgTertiary;
+                            e.currentTarget.style.opacity = "1";
+                          }}
                         >
-                          <span className="font-bold text-[#d4307a] min-w-fit">
+                          <span
+                            style={{
+                              fontWeight: "bold",
+                              color: colors.accent,
+                              minWidth: "fit-content",
+                            }}
+                          >
                             {law.id}.
                           </span>
-                          <p className="text-sm text-gray-300">{law.text}</p>
+                          <p
+                            style={{
+                              fontSize: "0.875rem",
+                              color: colors.textSecondary,
+                              margin: 0,
+                            }}
+                          >
+                            {law.text}
+                          </p>
                         </div>
                       ))}
                     </div>
@@ -279,20 +516,53 @@ export default function Home() {
 
               {/* Filtered Store Laws Display */}
               {searchQuery && filteredStoreLaws.length > 0 && (
-                <div className="mt-8 p-4 rounded-lg border border-[#3d0a2a] bg-[#1a0520]/50">
-                  <h3 className="font-bold text-white mb-4">نتائج البحث</h3>
-                  <div className="space-y-3">
+                <div
+                  style={{
+                    marginTop: "2rem",
+                    padding: "1rem",
+                    borderRadius: "0.5rem",
+                    border: `1px solid ${colors.border}`,
+                    backgroundColor: colors.bgSecondary,
+                  }}
+                >
+                  <h3 style={{ fontWeight: "bold", color: colors.text, marginBottom: "1rem" }}>
+                    نتائج البحث
+                  </h3>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                     {filteredStoreLaws.map((law) => (
                       <div
                         key={`${law.subcategory}-${law.id}`}
-                        className="flex gap-3 p-3 rounded bg-[#3d0a2a]/30 hover:bg-[#3d0a2a]/50 transition-colors"
+                        style={{
+                          display: "flex",
+                          gap: "0.75rem",
+                          padding: "0.75rem",
+                          borderRadius: "0.375rem",
+                          backgroundColor: colors.bgTertiary,
+                          transition: "all 0.3s ease",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = colors.accent;
+                          e.currentTarget.style.opacity = "0.8";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = colors.bgTertiary;
+                          e.currentTarget.style.opacity = "1";
+                        }}
                       >
-                        <span className="text-lg">{law.emoji}</span>
+                        <span style={{ fontSize: "1rem" }}>{law.emoji}</span>
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">
+                          <p
+                            style={{
+                              fontSize: "0.75rem",
+                              color: colors.textMuted,
+                              margin: "0 0 0.25rem 0",
+                            }}
+                          >
                             {law.subcategory}
                           </p>
-                          <p className="text-gray-300">{law.text}</p>
+                          <p style={{ color: colors.textSecondary, margin: 0 }}>
+                            {law.text}
+                          </p>
                         </div>
                       </div>
                     ))}
@@ -302,22 +572,45 @@ export default function Home() {
             </div>
           ) : (
             // Regular Categories Laws List
-            <div className="space-y-3">
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
               {filteredLaws.length > 0 ? (
                 filteredLaws.map((law) => (
                   <div
                     key={law.id}
-                    className="flex gap-4 p-4 rounded-lg border border-[#3d0a2a] bg-[#1a0520]/50 hover:bg-[#1a0520] transition-colors"
+                    style={{
+                      display: "flex",
+                      gap: "1rem",
+                      padding: "1rem",
+                      borderRadius: "0.5rem",
+                      border: `1px solid ${colors.border}`,
+                      backgroundColor: colors.bgSecondary,
+                      transition: "all 0.3s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = colors.bgTertiary;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = colors.bgSecondary;
+                    }}
                   >
-                    <span className="font-bold text-[#d4307a] text-lg min-w-fit">
+                    <span
+                      style={{
+                        fontWeight: "bold",
+                        color: colors.accent,
+                        fontSize: "1.125rem",
+                        minWidth: "fit-content",
+                      }}
+                    >
                       {law.id}.
                     </span>
-                    <p className="text-gray-300">{law.text}</p>
+                    <p style={{ color: colors.textSecondary, margin: 0 }}>
+                      {law.text}
+                    </p>
                   </div>
                 ))
               ) : (
-                <div className="text-center py-8">
-                  <p className="text-gray-500">لم يتم العثور على قوانين</p>
+                <div style={{ textAlign: "center", padding: "2rem" }}>
+                  <p style={{ color: colors.textMuted }}>لم يتم العثور على قوانين</p>
                 </div>
               )}
             </div>
@@ -326,12 +619,33 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="relative z-20 border-t border-[#3d0a2a] bg-[#050308]/80 py-6 mt-12">
-        <div className="container mx-auto px-4 text-center text-sm text-gray-500">
-          <p>© 2024 VibesRP - جميع الحقوق محفوظة</p>
-          <p className="mt-1">آخر تحديث: ١٣‏/٥‏/٢٠٢٦</p>
-        </div>
+      <footer
+        style={{
+          position: "relative",
+          zIndex: 20,
+          borderTop: `1px solid ${colors.border}`,
+          backgroundColor: isDarkMode ? `${colors.bg}cc` : `${colors.bg}cc`,
+        padding: "1.5rem 1rem",
+        marginTop: "3rem",
+        textAlign: "center",
+        fontSize: "0.875rem",
+        color: colors.textMuted,
+      }}
+      >
+        <p style={{ margin: 0 }}>© 2024 VibesRP - جميع الحقوق محفوظة</p>
+        <p style={{ margin: "0.25rem 0 0 0" }}>آخر تحديث: ١٤‏/٥‏/٢٠٢٦</p>
       </footer>
+
+      <style>{`
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.5;
+          }
+        }
+      `}</style>
     </div>
   );
 }

@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Moon, Sun } from "lucide-react";
 
 interface Law {
@@ -134,6 +132,12 @@ export default function Home() {
   // تحديث localStorage عند تغيير الوضع
   useEffect(() => {
     localStorage.setItem("vibesrp-dark-mode", JSON.stringify(isDarkMode));
+    // تحديث الخلفية الفعلية للصفحة
+    if (isDarkMode) {
+      document.documentElement.style.backgroundColor = "#050308";
+    } else {
+      document.documentElement.style.backgroundColor = "#f8f0f5";
+    }
   }, [isDarkMode]);
 
   const filteredLaws = lawsData
@@ -294,8 +298,8 @@ export default function Home() {
                 style={{
                   padding: "0.5rem",
                   borderRadius: "50%",
-                  border: `1px solid ${colors.border}`,
-                  backgroundColor: isDarkMode ? colors.bgTertiary : colors.bgTertiary,
+                  border: `2px solid ${colors.border}`,
+                  backgroundColor: colors.bgTertiary,
                   color: colors.text,
                   cursor: "pointer",
                   display: "flex",
@@ -304,22 +308,19 @@ export default function Home() {
                   transition: "all 0.3s ease",
                   width: "40px",
                   height: "40px",
+                  fontSize: "20px",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = colors.accent;
+                  e.currentTarget.style.transform = "scale(1.1)";
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = isDarkMode
-                    ? colors.bgTertiary
-                    : colors.bgTertiary;
+                  e.currentTarget.style.backgroundColor = colors.bgTertiary;
+                  e.currentTarget.style.transform = "scale(1)";
                 }}
                 title={isDarkMode ? "تبديل للوضع الفاتح" : "تبديل للوضع الداكن"}
               >
-                {isDarkMode ? (
-                  <Sun size={20} />
-                ) : (
-                  <Moon size={20} />
-                )}
+                {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
               </button>
             </div>
           </div>
@@ -625,12 +626,12 @@ export default function Home() {
           zIndex: 20,
           borderTop: `1px solid ${colors.border}`,
           backgroundColor: isDarkMode ? `${colors.bg}cc` : `${colors.bg}cc`,
-        padding: "1.5rem 1rem",
-        marginTop: "3rem",
-        textAlign: "center",
-        fontSize: "0.875rem",
-        color: colors.textMuted,
-      }}
+          padding: "1.5rem 1rem",
+          marginTop: "3rem",
+          textAlign: "center",
+          fontSize: "0.875rem",
+          color: colors.textMuted,
+        }}
       >
         <p style={{ margin: 0 }}>© 2024 VibesRP - جميع الحقوق محفوظة</p>
         <p style={{ margin: "0.25rem 0 0 0" }}>آخر تحديث: ١٤‏/٥‏/٢٠٢٦</p>
